@@ -1,58 +1,38 @@
-const CACHE_NAME = 'MusicPlayer';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/styles.css',
-  '/js/app.js',
-  '/js/player.js',
-  '/js/ui.js',
-  '/js/playlist.js',
-  '/icon192.png',
-  '/icon500.png'
-];
+const KEY = 'MusicPlayer';
 
 self.addEventListener('install', (event) => {
-  // Perform install steps
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
-  );
+    event.waitUntil(self.skipWaiting());
 });
 
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    fetch(event.request).then((response) => {
-      // Check if we received a valid response
-      if (!response || response.status !== 200 || response.type !== 'basic') {
+self.addEventListener('message', (event) => {
+    if (event.data.type === 'CACHE_URLS') {
+        event.waitUntil(
+            caches.open(KEY)
+                .then( (cache) => {
+                    return cache.addAll(event.data.payload);
+                })
+        );
+    }
+});
+
+self.addEventListener("fetch", (e) => {
+  e.respondWith(
+    (async () => {
+      try {
+        console.log(`[Service Worker] Attempting to serve resource from cache: ${e.request.url}`);
+        const r = await caches.match(e.request);
+        if (r) {
+          return r;
+        }
+        console.log(`[Service Worker] Attempting live fetch: ${e.request.url}`);
+        const response = await fetch(e.request);
+        const cache = await caches.open(KEY);
+        console.log(`[Service Worker] Caching new resource: ${e.request.url}`);
+        cache.put(e.request, response.clone());
         return response;
+      } catch (err) {
+        console.error(`[Service Worker] Fetch failed: ${err}`);
       }
-      // Clone the response
-      const responseToCache = response.clone();
-      caches.open(CACHE_NAME).then((cache) => {
-        cache.put(event.request, responseToCache);
-      });
-      return response;
-    }).catch(() => {
-      // If fetch fails, serve from cache
-      return caches.match(event.request);
-    })
-  );
-});
-
-self.addEventListener('activate', (event) => {
-  const cacheWhitelist = [CACHE_NAME];
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    })()
   );
 });
