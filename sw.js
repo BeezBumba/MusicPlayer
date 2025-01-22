@@ -22,16 +22,17 @@ self.addEventListener('install', (event) => {
   );
 });
 
-self.addEventListener('fetch', event => {
+self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
-      .then(response => {
+      .then((response) => {
         if (response) {
           return response; // Serve from cache
         }
         return fetch(event.request); // Fetch from network
       })
   );
+});
 
 self.addEventListener('activate', (event) => {
   const cacheWhitelist = [CACHE_NAME];
@@ -47,4 +48,3 @@ self.addEventListener('activate', (event) => {
     })
   );
 });
-
