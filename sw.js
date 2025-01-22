@@ -17,29 +17,28 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('Opened cache');
-        return cache.addAll(urlsToCache.map(url => {
-          return fetch(url).then(response => {
-            if (!response.ok) {
-              throw new Error(`Request for ${url} failed with status ${response.status}`);
-            }
-            return url;
-          });
-        })).catch(error => {
-          console.error('Failed to cache:', error);
-        });
+        return cache.addAll(urlsToCache);
       })
   );
 });
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        if (response) {
-          return response; // Serve from cache
-        }
-        return fetch(event.request); // Fetch from network
-      })
+    fetch(event.request).then((response) => {
+      // Check if we received a valid response
+      if (!response || response.status !== 200 || response.type !== 'basic') {
+        return response;
+      }
+      // Clone the response
+      const responseToCache = response.clone();
+      caches.open(CACHE_NAME).then((cache) => {
+        cache.put(event.request, responseToCache);
+      });
+      return response;
+    }).catch(() => {
+      // If fetch fails, serve from cache
+      return caches.match(event.request);
+    })
   );
 });
 
