@@ -17,7 +17,16 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('Opened cache');
-        return cache.addAll(urlsToCache);
+        return cache.addAll(urlsToCache.map(url => {
+          return fetch(url).then(response => {
+            if (!response.ok) {
+              throw new Error(`Request for ${url} failed with status ${response.status}`);
+            }
+            return url;
+          });
+        })).catch(error => {
+          console.error('Failed to cache:', error);
+        });
       })
   );
 });
