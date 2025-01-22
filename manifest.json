@@ -1,7 +1,7 @@
 {
   "name": "Music Player",
-  "short_name": "MusicPlayer",
-  "start_url": "/index.html",
+  "short_name": "Music Player",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
