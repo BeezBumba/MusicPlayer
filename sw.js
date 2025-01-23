@@ -1,15 +1,15 @@
 const CACHE_NAME = 'MusicPlayer';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/styles.css',
-  '/icon192',
-  '/icon500',
-  '/js/app.js',
-  '/js/player.js',
-  '/js/playlist.js',
-  '/js/ui.js',
-  '/manifest.json'  
+  '/MusicPlayer/',
+  '/MusicPlayer/index.html',
+  '/MusicPlayer/styles.css',
+  '/MusicPlayer/icon192',
+  '/MusicPlayer/icon500',
+  '/MusicPlayer/js/app.js',
+  '/MusicPlayer/js/player.js',
+  '/MusicPlayer/js/playlist.js',
+  '/MusicPlayer/js/ui.js',
+  '/MusicPlayer/manifest.json'  
 ];
 
 self.addEventListener('install', (event) => {
