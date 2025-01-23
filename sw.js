@@ -1,7 +1,7 @@
 const CACHE_NAME = 'MusicPlayer';
 const urlsToCache = [
-  '/',
-  '/index.html',
+  '/MusicPlayer',
+  '/MusicPlayer/index.html',
   '/styles.css',
   '/icon192.png',
   '/icon500.png',
