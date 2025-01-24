@@ -9,8 +9,7 @@ const urlsToCache = [
   '/js/player.js',
   '/js/playlist.js',
   '/js/ui.js',
-  '/manifest.json',
-  '/404.html'  // Add the fallback page to the cache
+  '/manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
@@ -32,39 +31,10 @@ self.addEventListener('fetch', (event) => {
         if (response) {
           return response; // Return the cached response
         }
-        return fetch(event.request).catch(() => {
-          return caches.match('/404.html').then(response => {
-            return response || new Response('Page not found', {
-              status: 404,
-              statusText: 'Page not found'
-            });
-          });
-        });
-      }).catch(error => {
-        return caches.match('/404.html').then(response => {
-          const clonedResponse = response.clone();
-          clonedResponse.text().then((text) => {
-            const errorMessage = `Failed to fetch: ${event.request.url}`;
-            const errorScript = `<script>
-              if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.ready.then((registration) => {
-                  if (registration.active) {
-                    registration.active.postMessage({ type: 'errorDetails', message: '${errorMessage}' });
-                  }
-                });
-              }
-            </script>`;
-            const modifiedText = text.replace('</body>', `${errorScript}</body>`);
-            return new Response(modifiedText, {
-              headers: { 'Content-Type': 'text/html' }
-            });
-          });
-          return response;
-        });
+        return fetch(event.request); // Fetch from network
       })
   );
 });
-
 
 self.addEventListener('activate', (event) => {
   const cacheWhitelist = [CACHE_NAME];
